@@ -176,33 +176,85 @@ void LinkedList::remove(const size_t pos)
 
 void LinkedList::removeNextNode(Node* node)
 {
-    Node* target = node->next;
+    if(node->next->next == nullptr){
+        removeBack();
+        return;
+    }
+    else {
+        Node* target = node->next;
+        node->next = node->next->next;
+        delete target;
+        --_size;
+    }
+
     
 }
 
 long long int LinkedList::findIndex(const ValueType& value) const
 {
-	return 0;
+    Node* current = _head;
+    long long int counter = 0;
+    while(current->value != value){
+        current = current->next;
+        ++counter;
+        if(current == nullptr){
+            counter = -1;
+            break;
+        }
+    }
+	return counter;
 }
 
 LinkedList::Node* LinkedList::findNode(const ValueType& value) const
 {
-	return nullptr;
+    Node* current = _head;
+    while(current->value != value){
+        current = current->next;
+        if(current == nullptr){
+            break;
+        }
+    }
+	return current;
 }
 
 void LinkedList::reverse()
 {
-
+    if (_head == nullptr) return;
+    struct Node * current, *next, *prev = nullptr;
+    current = _head;
+    while(current)
+    {
+        next = current->next;
+        current->next = prev;
+        prev = current;
+        current = next;
+    }
+    _head = prev;
 }
 
 LinkedList LinkedList::reverse() const
 {
-	return LinkedList();
+    LinkedList list(*this);
+    Node* prev = nullptr;
+    Node* next = nullptr;
+    Node* curr = list._head;
+
+    while (curr != nullptr) {
+        next = curr->next;
+        curr->next = prev;
+        prev = curr;
+        curr = next;
+    }
+
+    list._head = prev;
+    list._size = _size;
+
+    return list;
 }
 
 LinkedList LinkedList::getReverseList() const
 {
-	return LinkedList();
+	reverse();
 }
 
 size_t LinkedList::size() const
@@ -219,4 +271,18 @@ void LinkedList::forceNodeDelete(Node* node)
 	Node* nextDeleteNode = node->next;
 	delete node;
 	forceNodeDelete(nextDeleteNode);
+}
+
+void LinkedList::removeFront() {
+    if (_head == nullptr)
+        return;
+
+    Node* temp = _head;
+    _head = _head->next;
+    delete temp;
+    --_size;
+}
+
+void LinkedList::removeBack() {
+    remove(_size - 1);
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdlib>
 
 // потом поменяем на шаблоны
 using ValueType = double;
