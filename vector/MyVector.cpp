@@ -55,8 +55,6 @@ ValueType &MyVector::operator[](const size_t i) const {
         return _data[0];
     } else
     return _data[i];
-
-
 }
 
 MyVector::MyVector(const MyVector &copy) {
@@ -64,7 +62,6 @@ MyVector::MyVector(const MyVector &copy) {
     _capacity = copy._capacity;
     _strategy = copy._strategy;
     _coef = copy._coef;
-    _data = nullptr;
     memcpy(_data, copy._data,sizeof(ValueType )* _size);
 }
 
