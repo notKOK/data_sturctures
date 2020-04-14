@@ -62,6 +62,7 @@ MyVector::MyVector(const MyVector &copy) {
     _capacity = copy._capacity;
     _strategy = copy._strategy;
     _coef = copy._coef;
+    _data = new ValueType[_capacity];
     memcpy(_data, copy._data,sizeof(ValueType )* _size);
 }
 
@@ -122,7 +123,7 @@ void MyVector::insert(const size_t i, const ValueType &value) {
         return;
     }
     if(_size == _capacity) {
-        reserve(_capacity + 1);
+        reserve(_capacity * 2);
         for(size_t j = _size; j > i; --j){
             _data[j] = _data[j - 1];
         }
@@ -147,6 +148,7 @@ MyVector &MyVector::operator=(const MyVector &copy) {
     this->_capacity = copy._capacity;
     this->_strategy = copy._strategy;
     this->_coef = copy._coef;
+    _data = new ValueType[_size];
     memcpy(this->_data, copy._data, sizeof(ValueType) * _size);
     return *this;
 }
