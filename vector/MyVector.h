@@ -109,13 +109,16 @@ public:
     MyVector sortedSquares(const MyVector& vec, SortedStrategy strategy);
     // очистка вектора, без изменения capacity
     void clear();
-
+    size_t idexx();
 private:
     ValueType* _data;
     size_t _size;
     size_t _capacity;
     ResizeStrategy _strategy;
     float _coef;
+    size_t id;
+
+    size_t recount_capacity(size_t size, ResizeStrategy strategy);
 
 };
 
