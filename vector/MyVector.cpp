@@ -1,5 +1,3 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "bugprone-narrowing-conversions"
 #include "MyVector.h"
 #include <cmath>
 #include <iostream>
@@ -57,10 +55,10 @@ float MyVector::loadFactor(size_t size) {
 }
 
 ValueType &MyVector::operator[](const size_t i) const {
-    if(_size < i){
+    if(_size <= i){
         std::cout << "i > size" << std::endl;
         return _data[0];
-    } else
+    }
     return _data[i];
 }
 
@@ -71,6 +69,8 @@ MyVector::MyVector(const MyVector &copy) {
     _coef = copy._coef;
     _data = new ValueType[_capacity];
     memcpy(_data, copy._data,sizeof(ValueType )* _size);
+    this->id = iv;
+    iv++;
 }
 
 void MyVector::resize(const size_t size, const ValueType _default) {
@@ -104,20 +104,25 @@ void MyVector::resize(const size_t size, const ValueType _default) {
 }
 
 void MyVector::reserve(const size_t capacity) {
-    if(_size < capacity) {
-        ValueType *tempdata = new ValueType[capacity];
-        memcpy(tempdata, _data, _size * sizeof(ValueType));
-        delete[] _data;
-        _data = tempdata;
-        _capacity = capacity;
+    try {
+        if (_size < capacity) {
+            ValueType *tempdata = new ValueType[capacity];
+            memcpy(tempdata, _data, _size * (sizeof(ValueType)));
+            delete[] _data;
+            _data = tempdata;
+            _capacity = capacity;
+        } else if (_size > capacity) {
+            ValueType *tempdata = new ValueType[capacity];
+            memcpy(tempdata, _data, capacity * sizeof(ValueType));
+            _size = capacity;
+            delete[] _data;
+            _data = tempdata;
+            _capacity = capacity;
+        }
     }
-    else if(_size > capacity) {
-        ValueType *tempdata = new ValueType[capacity];
-        memcpy(tempdata, _data, capacity * sizeof(ValueType));
-        _size = capacity;
-        delete[] _data;
-        _data = tempdata;
-        _capacity = capacity;
+    catch (const std::exception & ex) {
+        std::cout << ex.what() << std::endl;
+        std::cout << "  reserve dead  " << std::endl;
     }
 }
 
@@ -152,12 +157,12 @@ void MyVector::insert(const size_t i, const MyVector &value) {
     for(size_t j = 0; j < i; ++j){
         tempdata[j] = _data[j];
     }
-    size_t delta = value._size + _size - i + 1;
+    size_t delta = value._size + i;
     for(size_t j = i; j < delta; ++j){
-        tempdata[j] = value._data[j - i];
+        tempdata[j] = value[j - i];
     }
     for(size_t j = delta; j < allsize; ++j){
-        tempdata[j] = _data[value._size + _size - j + 1];
+        tempdata[j] = _data[j - value._size];
     }
     delete[] _data;
     _data = tempdata;
@@ -182,15 +187,9 @@ void MyVector::pushBack(const ValueType &value) {
 void MyVector::popBack() {
     if(_size == 0) return;
     _data[_size] = 0;
-    --_size;
-    size_t oldcap = _capacity;
-    _capacity = recount_capacity(_size, _strategy);
-    if(oldcap == _capacity){
-        return;
-    }
-    else {
-        reserve(_capacity);
-    }
+    _size--;
+    size_t newcap = recount_capacity(_size, _strategy);
+    reserve(newcap);
 }
 
 void MyVector::clear() {
@@ -207,11 +206,56 @@ void MyVector::erase(const size_t i) {
     this->popBack();
 }
 
+size_t MyVector::Partition(ValueType* data, size_t l, size_t r,  SortedStrategy sstrategy) {
+    ValueType x = data[r];
+    size_t less = l;
+
+    switch(sstrategy){
+        case(SortedStrategy::Rise):
+            for (int i = l; i < r; ++i) {
+                if (data[i] <= x) {
+                    std::swap(data[i], data[less]);
+                    ++less;
+                }
+            }
+            break;
+        case(SortedStrategy::DeRise):
+            for (int i = l; i < r; ++i) {
+                if (data[i] >= x) {
+                    std::swap(data[i], data[less]);
+                    ++less;
+                }
+            }
+            break;
+    }
+    std::swap(data[less], data[r]);
+    return less;
+}
+
+
+void MyVector::QuickSortImpl(ValueType* data, size_t l, size_t r, SortedStrategy sstrategy, size_t Q = 1) {
+    if (l < r && (Q - 1 <= Q) && ((Q + 1) != 0) && (r != 4294967295)) {
+        Q = Partition(data, l, r, sstrategy);
+        QuickSortImpl(data, l, Q - 1, sstrategy);
+        QuickSortImpl(data, Q + 1, r, sstrategy);
+    }
+}
+
+MyVector MyVector::sortedSquares(const MyVector &vec, SortedStrategy strategy) {
+    if (vec.size() != 0) { //!values.empty()
+        MyVector Mee = vec;
+        QuickSortImpl(_data, 0, Mee._size - 1, strategy); //values.size()
+
+        return Mee;
+    }
+    else { return vec; }
+}
+
 void MyVector::erase(const size_t i, const size_t len) {
     size_t len_i = len + i;
     if((i >= _size) || len_i > _size) return;
-    _capacity = recount_capacity(_size - len, _strategy);
-    ValueType* tempdata = new ValueType[_capacity];
+    size_t newcap = recount_capacity(_size - len, _strategy);
+    ValueType* tempdata = new ValueType[newcap];
 
     for(size_t j = 0; j < i; ++j){
         tempdata[j] = _data[j];
@@ -238,35 +282,6 @@ long long int MyVector::find(const ValueType &value, bool isBegin) const {
     return -1;
 }
 
-MyVector MyVector::sortedSquares(const MyVector &vec, SortedStrategy strategy) {
-    for(size_t i = 0; i < vec.size(); ++i){
-        vec[i] *= vec[i];
-    }
-    switch(strategy){
-        case (SortedStrategy::Rise):
-            for(size_t j = 1; j < vec.size(); ++j)
-            {
-                for (size_t i = 0; i < vec.size() - j; ++i) {
-                    if (vec[i] > vec[i + 1]) {
-                        std::swap(vec[i], vec[i + 1]);
-                    }
-                }
-            }
-            break;
-        case (SortedStrategy::DeRise):
-            for(size_t j = 1; j < vec.size(); ++j)
-            {
-                for (size_t i = 0; i < vec.size() - j; ++i) {
-                    if (vec[i] < vec[i + 1]) {
-                        std::swap(vec[i], vec[i + 1]);
-                    }
-                }
-            }
-            break;
-    }
-    return MyVector();
-}
-
 size_t MyVector::recount_capacity(size_t size, ResizeStrategy strategy){
     float loadF = loadFactor(size);
     float divCoef = 1 / (_coef * _coef);
@@ -277,14 +292,18 @@ size_t MyVector::recount_capacity(size_t size, ResizeStrategy strategy){
         return 1;
     }
 
-    float multiplier = 0;
     float oldcap = _capacity;
 
     switch(strategy){
 
         case ResizeStrategy::Additive:
-            multiplier = (size - oldcap)/_coef;
-            return std::ceil(oldcap + _coef * multiplier);
+            while(loadFactor(size) < divCoef){
+                _capacity -= _coef;
+            }
+            while(loadFactor(size) > 1){
+                _capacity += _coef;
+            }
+            return ceil(_capacity);
 
         case ResizeStrategy::Multiplicative:
             while(loadF < divCoef){
@@ -296,9 +315,6 @@ size_t MyVector::recount_capacity(size_t size, ResizeStrategy strategy){
                 loadF /= _coef;
             }
             return ceil(oldcap);
-            /*multiplier = ceilf(log(size/oldcap)/log(_coef));
-            if(multiplier <= 0) multiplier = 1;
-            return std::ceil(oldcap * std::pow(_coef, multiplier));*/
     }
     return _capacity;
 }
@@ -306,6 +322,3 @@ size_t MyVector::recount_capacity(size_t size, ResizeStrategy strategy){
 size_t MyVector::idexx() {
     return id;
 }
-
-
-#pragma clang diagnostic pop

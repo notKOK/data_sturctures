@@ -1,6 +1,4 @@
 #pragma once
-#ifndef CLIONPROJECTS_MYVECTOR_H
-#define CLIONPROJECTS_MYVECTOR_H
 #include <cstdlib>
 #include <cmath>
 #include <cstring>
@@ -106,7 +104,7 @@ public:
     // если меньше - обрезаем вектор
     void resize(const size_t size, const ValueType = 0.0);
 
-    MyVector sortedSquares(const MyVector& vec, SortedStrategy strategy);
+    MyVector sortedSquares(const MyVector& vec, SortedStrategy sstrategy);
     // очистка вектора, без изменения capacity
     void clear();
     size_t idexx();
@@ -119,7 +117,6 @@ private:
     size_t id;
 
     size_t recount_capacity(size_t size, ResizeStrategy strategy);
-
+    size_t Partition(ValueType* data, size_t l,size_t r,  SortedStrategy sstrategy);
+    void QuickSortImpl(ValueType* data, size_t l, size_t r,  SortedStrategy sstrategy, size_t Q);
 };
-
-#endif //CLIONPROJECTS_MYVECTOR_H
