@@ -117,6 +117,6 @@ private:
     size_t id;
 
     size_t recount_capacity(size_t size, ResizeStrategy strategy);
-    size_t Partition(ValueType* data, size_t l,size_t r,  SortedStrategy sstrategy);
-    void QuickSortImpl(ValueType* data, size_t l, size_t r,  SortedStrategy sstrategy, size_t Q);
+    size_t Partition(ValueType* data, size_t l,size_t r,bool* mew,  SortedStrategy sstrategy);
+    void QuickSortImpl(ValueType* data, size_t l, size_t r, bool* mew,  SortedStrategy sstrategy, size_t Q = 1);
 };
