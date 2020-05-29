@@ -89,19 +89,19 @@ void MyVector::resize(const size_t size, const ValueType _default) {
         for(size_t i = _size; i < size; ++i){
             _data[i] = _default;
         }
-        _size = size;
     }
     else if(loadF < 1/(_coef * _coef)) {
         ValueType* tempdata = new ValueType[_capacity];
         memcpy(tempdata, _data, size * sizeof(ValueType));
         delete[] _data;
+        _data = tempdata;
     }
     else {
         for(size_t i = _size; i < size; ++i){
             _data[i] = _default;
         }
-        _size = size;
     }
+    _size = size;
 }
 
 void MyVector::reserve(const size_t capacity) {
@@ -206,8 +206,16 @@ void MyVector::erase(const size_t i) {
 }
 
 size_t MyVector::Partition(ValueType* data, size_t l, size_t r,bool* mew,  SortedStrategy sstrategy) {
+    if(!mew[r]) {
+        data[r] *= data[r];
+        mew[r] = true;
+    }
     ValueType x = data[r];
     size_t less = l;
+    if(!mew[less]) {
+        data[less] *= data[less];
+        mew[less] = true;
+    }
 
     switch(sstrategy){
         case(SortedStrategy::Rise):
@@ -243,6 +251,10 @@ size_t MyVector::Partition(ValueType* data, size_t l, size_t r,bool* mew,  Sorte
             }
             break;
     }
+    if(!mew[less]) {
+        data[less] *= data[less];
+        mew[less] = true;
+    }
     std::swap(data[less], data[r]);
     return less;
 }
@@ -260,11 +272,10 @@ MyVector MyVector::sortedSquares(const MyVector &vec, SortedStrategy strategy) {
     if (vec.size() != 0) { //!values.empty()
         MyVector Mee = vec;
         bool *mew = new bool[Mee._size]{};
+        QuickSortImpl(Mee._data, 0, Mee._size - 1,mew, strategy); //values.size()
         for(int i = 0; i < Mee._size; i++){
             if(!mew[i]) Mee._data[i] *= Mee._data[i];
         }
-        QuickSortImpl(Mee._data, 0, Mee._size - 1,mew, strategy); //values.size()
-
         return Mee;
     }
     else { return *this; }
