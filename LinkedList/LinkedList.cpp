@@ -27,30 +27,26 @@ void LinkedList::Node::removeNext()
 	this->next = newNext;
 }
 
-LinkedList::LinkedList()
-	: _head(nullptr), _size(0)
-{
-	
-}
+LinkedList::LinkedList() : _head(nullptr), _size(0){}
 
 LinkedList::LinkedList(const LinkedList& copyList)
 {
-	this->_size = copyList._size;
-	if (this->_size == 0) {
-		this->_head = nullptr;
-		return;
-	}
+    _size = copyList._size;
+    if (_size == 0) {
+        _head = nullptr;
+        return;
+    }
 
-	this->_head = new Node(copyList._head->value);
+    _head = new Node(copyList._head->value);
 
-	Node* currentNode = this->_head;
-	Node* currentCopyNode = copyList._head;
+    Node* currentNode = _head;
+    Node* currentCopyNode = copyList._head;
 
-	while (currentCopyNode->next) {
-		currentNode->next = new Node(currentCopyNode->value);
-		currentCopyNode = currentCopyNode->next;
-		currentNode = currentNode->next;
-	}
+    while (currentCopyNode->next) {
+        currentCopyNode = currentCopyNode->next;
+        currentNode->next = new Node(currentCopyNode->value);
+        currentNode = currentNode->next;
+    }
 }
 
 LinkedList& LinkedList::operator=(const LinkedList& copyList)
@@ -101,12 +97,7 @@ ValueType& LinkedList::operator[](const size_t pos) const
 
 LinkedList::Node* LinkedList::getNode(const size_t pos) const
 {
-	if (pos < 0) {
-		assert(pos < 0);
-	}
-	else if (pos >= this->_size) {
-		assert(pos >= this->_size);
-	}
+    assert(!(pos < 0 || pos >= this->_size));
 
 	Node* bufNode = this->_head;
 	for (int i = 0; i < pos; ++i) {
@@ -118,12 +109,7 @@ LinkedList::Node* LinkedList::getNode(const size_t pos) const
 
 void LinkedList::insert(const size_t pos, const ValueType& value)
 {
-	if (pos < 0) {
-		assert(pos < 0);
-	}
-	else if (pos > this->_size) {
-		assert(pos > this->_size);
-	}
+    assert(!(pos < 0 || pos > this->_size));
 
 	if (pos == 0) {
 		pushFront(value);
@@ -140,7 +126,9 @@ void LinkedList::insert(const size_t pos, const ValueType& value)
 
 void LinkedList::insertAfterNode(Node* node, const ValueType& value)
 {
+    assert(node == nullptr);
 	node->insertNext(value);
+	++_size;
 }
 
 void LinkedList::pushBack(const ValueType& value)
@@ -160,6 +148,7 @@ void LinkedList::pushFront(const ValueType& value)
 
 void LinkedList::remove(const size_t pos)
 {
+    assert(pos >= _size || pos < 0);
     if (pos != 0) {
         Node* temp = _head;
         for (size_t i = 0; i < pos - 1; i++)
@@ -176,6 +165,7 @@ void LinkedList::remove(const size_t pos)
 
 void LinkedList::removeNextNode(Node* node)
 {
+    assert(node == nullptr);
     if(node->next->next == nullptr){
         removeBack();
         return;
@@ -219,10 +209,8 @@ LinkedList::Node* LinkedList::findNode(const ValueType& value) const
 
 void LinkedList::reverse()
 {
-    if (_head == nullptr) return;
-    struct Node * current, *next, *prev = nullptr;
-    current = _head;
-    while(current)
+    Node* current = _head, *next, *prev = nullptr;
+    while(current != nullptr)
     {
         next = current->next;
         current->next = prev;
