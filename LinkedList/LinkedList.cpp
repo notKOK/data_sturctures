@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <bits/exception.h>
+#include <stdexcept>
 
 LinkedList::Node::Node(const ValueType& value, Node* next)
 {
@@ -110,7 +111,9 @@ ValueType& LinkedList::operator[](const size_t pos) const
 
 LinkedList::Node* LinkedList::getNode(const size_t pos) const
 {
-    if (!(pos < 0 || pos >= this->_size)) return ;
+    if (pos < 0 || pos >= this->_size) {
+        throw std::out_of_range("Invalid index");
+    }
 
 	Node* bufNode = this->_head;
 	for (int i = 0; i < pos; ++i) {
@@ -122,8 +125,9 @@ LinkedList::Node* LinkedList::getNode(const size_t pos) const
 
 void LinkedList::insert(const size_t pos, const ValueType& value)
 {
-    if (!(pos < 0 || pos > this->_size)) return;
-
+    if ((pos < 0) || (pos > this->_size)) {
+        throw std::out_of_range("Invalid index");
+    }
 	if (pos == 0) {
 		pushFront(value);
 	}
@@ -161,7 +165,9 @@ void LinkedList::pushFront(const ValueType& value)
 
 void LinkedList::remove(const size_t pos)
 {
-    if(pos >= _size || pos < 0) return;
+    if ((pos < 0) || (pos >= this->_size)) {
+        throw std::out_of_range("Invalid index");
+    }
     if (pos != 0) {
         Node* temp = _head;
         for (size_t i = 0; i < pos - 1; i++)
@@ -178,7 +184,9 @@ void LinkedList::remove(const size_t pos)
 
 void LinkedList::removeNextNode(Node* node)
 {
-    if (node == nullptr) return;
+    if (node == nullptr) {
+            throw std::out_of_range("Invalid index");
+    }
     if(node->next->next == nullptr){
         removeBack();
         return;
