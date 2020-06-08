@@ -25,11 +25,15 @@ MyVector::MyVector(size_t size, ResizeStrategy strategy, float coef) {
     this->_strategy = strategy;
     this->_coef = coef;
     this->_capacity = 1;
-    this->_capacity = recount_capacity(size, strategy);
+    this->_capacity = recount_capacity(_size, strategy);
+
     this->id = iv;
     iv++;
 
     this->_data = new ValueType[_capacity];
+    for(int i = 0; i < _size; i++){
+        _data[i] = ValueType();
+    }
 }
 
 
@@ -284,8 +288,8 @@ MyVector MyVector::sortedSquares(const MyVector &vec, SortedStrategy strategy) {
 void MyVector::erase(const size_t i, const size_t len) {
     size_t len_i = len + i;
     if((i >= _size) || len_i > _size) return;
-    size_t newcap = recount_capacity(_size - len, _strategy);
-    ValueType* tempdata = new ValueType[newcap];
+    _capacity = recount_capacity(_size - len, _strategy);
+    ValueType* tempdata = new ValueType[_capacity];
 
     for(size_t j = 0; j < i; ++j){
         tempdata[j] = _data[j];
@@ -322,29 +326,12 @@ size_t MyVector::recount_capacity(size_t size, ResizeStrategy strategy){
         return 1;
     }
 
-    float oldcap = _capacity;
-
     switch(strategy){
-
         case ResizeStrategy::Additive:
-            while(loadFactor(size) < divCoef){
-                _capacity -= _coef;
-            }
-            while(loadFactor(size) > 1){
-                _capacity += _coef;
-            }
-            return ceil(_capacity);
+            return ceil(size + _coef);
 
         case ResizeStrategy::Multiplicative:
-            while(loadF < divCoef){
-                oldcap /= _coef;
-                loadF *= _coef;
-            }
-            while(loadF > 1){
-                oldcap *= _coef;
-                loadF /= _coef;
-            }
-            return ceil(oldcap);
+            return ceil(size * _coef);
     }
     return _capacity;
 }
