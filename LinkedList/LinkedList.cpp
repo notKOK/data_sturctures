@@ -267,20 +267,15 @@ void LinkedList::forceNodeDelete(Node* node)
 	if (node == nullptr) {
 		return;
 	}
-    try {
-        Node* nextDeleteNode = node->next;
-        delete node;
-        forceNodeDelete(nextDeleteNode);
-    }
-	catch (const std::exception & ex){
-        ex.what();
-        return;
-	}
+	Node* nextDeleteNode = node->next;
+	delete node;
+	forceNodeDelete(nextDeleteNode);
 }
 
 void LinkedList::removeFront() {
-    if (_head == nullptr)
-        return;
+    if (_head == nullptr){
+        throw std::out_of_range("Invalid index");
+    }
 
     Node* temp = _head;
     _head = _head->next;
