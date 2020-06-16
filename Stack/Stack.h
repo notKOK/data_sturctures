@@ -38,7 +38,6 @@ public:
 	// удаление с хвоста
 	void pop();
 	// посмотреть элемент в хвосте
-	ValueType& top();
 	const ValueType& top() const;
 	// проверка на пустоту
 	bool isEmpty() const;

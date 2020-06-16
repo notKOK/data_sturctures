@@ -32,5 +32,5 @@ const ValueType& ListStack::top() const
 
 bool ListStack::isEmpty() const
 {
-    return LinkedList::size() != 0;
+    return (LinkedList::size() == 0);
 }

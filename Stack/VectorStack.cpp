@@ -20,7 +20,7 @@ const ValueType& VectorStack::top() const {
 }
 
 bool VectorStack::isEmpty() const {
-    return MyVector::size() != 0;
+    return (MyVector::size() == 0);
 }
 
 size_t VectorStack::size() const {

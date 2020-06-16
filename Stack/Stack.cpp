@@ -33,7 +33,7 @@ Stack::Stack(const ValueType* valueArray, const size_t arraySize, StackContainer
     }
 }
 
-Stack::Stack(const Stack& copyStack)
+Stack::Stack(const Stack& copyStack) : Stack(copyStack._containerType)
 {
     switch (_containerType) {
         case StackContainer::List: {
@@ -87,14 +87,9 @@ void Stack::pop()
 	_pimpl->pop();
 }
 
-ValueType& Stack::top()
-{
-	return const_cast<ValueType &>(_pimpl->top());
-}
-
 const ValueType& Stack::top() const
 {
-	return _pimpl->top();
+    return _pimpl->top();
 }
 
 bool Stack::isEmpty() const
